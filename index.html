@@ -1,30 +1,890 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta property="og:title" content="Pesquisa coRPop — Experiência em Rodovias">
-  <meta property="og:description" content="Participe da nossa pesquisa sobre experiência em rodovias. Leva apenas 8 minutos e é anônima!">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://corpoprp.github.io/pesquisa-corpop/">
-  <title>Pesquisa coRPop</title>
-  <style>
-    body { font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; background: #e8f5e9; }
-    .box { text-align: center; }
-    .logo { font-size: 32px; color: #1e5a2e; margin-bottom: 8px; font-weight: bold; }
-    p { color: #4a7a55; font-size: 14px; }
-    a { color: #3d9e52; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesquisa coRPop — Experiência em Rodovias</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul:       #0d1f6e;
+    --azul-mid:   #1a2f8a;
+    --azul-claro: #4bb8cc;
+    --azul-soft:  #6dcad9;
+    --bg:         #eaf6f9;
+    --white:      #ffffff;
+    --border:     #d0e8ee;
+    --text:       #0d1f3c;
+    --muted:      #5a7a8a;
+    --error:      #dc2626;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 32px 16px 80px;
+  }
+  .wrapper { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+
+  .header-card {
+    background: var(--white); border-radius: 12px;
+    border-top: 8px solid var(--azul-claro);
+    box-shadow: 0 2px 12px rgba(13,31,110,.08); padding: 28px;
+  }
+  .logo { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--azul); margin-bottom: 4px; }
+  .logo span { color: var(--azul-claro); }
+  .logo-sub { font-size: 10px; text-transform: uppercase; letter-spacing: 2px; color: var(--azul-claro); margin-bottom: 20px; font-weight: 600; }
+  .header-card h1 { font-size: 20px; font-weight: 600; color: var(--azul); margin-bottom: 12px; }
+  .header-card p { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 8px; }
+  .req-note { font-size: 12px; color: var(--error); margin-top: 12px; }
+
+  .progress-card { background: var(--white); border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(13,31,110,.06); }
+  .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .progress-label { font-size: 12px; font-weight: 600; color: var(--azul); }
+  .progress-pct { font-size: 12px; color: var(--muted); }
+  .progress-bar-wrap { height: 6px; background: #e0eef2; border-radius: 3px; overflow: hidden; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--azul-claro), var(--azul-soft)); border-radius: 3px; transition: width .4s ease; }
+  .steps { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #d0e8ee; transition: all .3s; }
+  .step-dot.ativo { background: var(--azul-claro); transform: scale(1.3); }
+  .step-dot.feito { background: var(--azul); }
+
+  .bloco-header {
+    background: linear-gradient(135deg, var(--azul), var(--azul-mid));
+    border-radius: 12px; padding: 16px 24px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .bloco-header .num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(75,184,204,.25); color: var(--azul-claro);
+    font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .bloco-header h2 { font-size: 14px; font-weight: 600; color: #fff; }
+  .bloco-header p { font-size: 11px; color: rgba(255,255,255,.6); margin-top: 2px; }
+
+  .card {
+    background: var(--white); border-radius: 12px; padding: 24px;
+    box-shadow: 0 2px 12px rgba(13,31,110,.06);
+    border-left: 4px solid transparent; transition: border-color .15s;
+  }
+  .card:focus-within { border-left-color: var(--azul-claro); }
+  .card.erro { border-left-color: var(--error); }
+  .pergunta { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 16px; line-height: 1.6; }
+  .pergunta .req { color: var(--error); margin-left: 2px; }
+  .pergunta .hint { display: block; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 4px; }
+  .erro-msg { font-size: 11px; color: var(--error); margin-top: 8px; display: none; }
+  .card.erro .erro-msg { display: block; }
+
+  .opcoes { display: flex; flex-direction: column; gap: 6px; }
+  .opcao {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: all .15s;
+  }
+  .opcao:hover { border-color: var(--azul-claro); background: #f0fafc; }
+  .opcao input[type="radio"], .opcao input[type="checkbox"] {
+    appearance: none; width: 18px; height: 18px;
+    border: 2px solid #b0cdd5; border-radius: 50%;
+    flex-shrink: 0; cursor: pointer; transition: all .15s;
+  }
+  .opcao input[type="checkbox"] { border-radius: 5px; }
+  .opcao input[type="radio"]:checked { border-color: var(--azul-claro); border-width: 5px; }
+  .opcao input[type="checkbox"]:checked { background: var(--azul-claro); border-color: var(--azul-claro); }
+  .opcao span { font-size: 13px; color: var(--text); }
+
+  .outro-wrapper {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px; border: 1px solid var(--border);
+    border-radius: 8px; cursor: pointer; transition: all .15s;
+  }
+  .outro-wrapper:hover { border-color: var(--azul-claro); background: #f0fafc; }
+  .outro-wrapper input[type="radio"] {
+    appearance: none; width: 18px; height: 18px;
+    border: 2px solid #b0cdd5; border-radius: 50%;
+    flex-shrink: 0; cursor: pointer; transition: all .15s;
+  }
+  .outro-wrapper input[type="radio"]:checked { border-color: var(--azul-claro); border-width: 5px; }
+  .outro-input {
+    flex: 1; border: none; border-bottom: 1px solid #b0cdd5;
+    outline: none; font-size: 13px; color: var(--text);
+    padding: 2px 0; background: transparent; font-family: 'Inter', sans-serif;
+  }
+  .outro-input:focus { border-bottom-color: var(--azul-claro); }
+  .outro-label { font-size: 13px; color: var(--muted); }
+
+  .select-wrap { position: relative; display: inline-block; min-width: 240px; }
+  .select-wrap select {
+    appearance: none; background: var(--white);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 36px 10px 14px; font-size: 13px; color: var(--text);
+    cursor: pointer; width: 100%; outline: none; font-family: 'Inter', sans-serif;
+    transition: border-color .15s;
+  }
+  .select-wrap select:focus { border-color: var(--azul-claro); }
+  .select-wrap select:disabled { background: #f5f5f5; color: #aaa; }
+  .select-wrap::after { content: '▾'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--muted); pointer-events: none; }
+
+  .matriz-wrap { overflow-x: auto; }
+  .matriz { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .matriz th { background: #f0fafc; color: var(--azul); font-weight: 600; padding: 8px 6px; text-align: center; border: 1px solid var(--border); white-space: nowrap; font-size: 11px; }
+  .matriz th:first-child { text-align: left; min-width: 160px; }
+  .matriz td { padding: 8px 6px; border: 1px solid var(--border); text-align: center; vertical-align: middle; }
+  .matriz td:first-child { text-align: left; font-size: 12px; color: var(--text); padding-left: 10px; }
+  .matriz tr:nth-child(even) td { background: #f9fdfe; }
+  .matriz input[type="radio"] { appearance: none; width: 16px; height: 16px; border: 2px solid #b0cdd5; border-radius: 50%; cursor: pointer; transition: all .15s; }
+  .matriz input[type="radio"]:checked { border-color: var(--azul-claro); border-width: 5px; }
+
+  .likert-wrap { display: flex; flex-direction: column; gap: 16px; }
+  .likert-item { display: flex; flex-direction: column; gap: 8px; }
+  .likert-label { font-size: 13px; color: var(--text); font-weight: 500; }
+  .likert-escala { display: flex; gap: 8px; align-items: center; }
+  .likert-escala label { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+  .likert-escala label span { font-size: 10px; color: var(--muted); }
+  .likert-escala input[type="radio"] {
+    appearance: none; width: 36px; height: 36px;
+    border: 2px solid var(--border); border-radius: 8px;
+    cursor: pointer; transition: all .15s; background: var(--white);
+  }
+  .likert-escala input[type="radio"]:checked { background: var(--azul-claro); border-color: var(--azul-claro); }
+  .likert-escala input[type="radio"]:hover { border-color: var(--azul-claro); }
+  .likert-leg { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  .ranking-list { display: flex; flex-direction: column; gap: 8px; }
+  .ranking-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; background: #f5fbfc;
+    border: 1px solid var(--border); border-radius: 8px;
+    cursor: grab; transition: all .15s; user-select: none;
+  }
+  .ranking-item:hover { border-color: var(--azul-claro); background: #f0fafc; }
+  .ranking-item.dragging { opacity: .5; border-color: var(--azul-claro); }
+  .ranking-pos { width: 24px; height: 24px; border-radius: 6px; background: var(--azul-claro); color: white; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ranking-nome { font-size: 13px; color: var(--text); flex: 1; }
+  .drag-icon { color: #b0cdd5; font-size: 16px; }
+
+  .textarea-field {
+    width: 100%; border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px 14px; font-size: 13px; font-family: 'Inter', sans-serif;
+    color: var(--text); resize: vertical; min-height: 100px; outline: none;
+    transition: border-color .15s;
+  }
+  .textarea-field:focus { border-color: var(--azul-claro); }
+
+  .nav-btns { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
+  .btn { padding: 12px 28px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; font-family: 'Inter', sans-serif; transition: all .2s; }
+  .btn-primary { background: var(--azul-claro); color: white; }
+  .btn-primary:hover { background: #3aa8bc; }
+  .btn-primary:disabled { background: #9ed8e4; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--azul-claro); border: 1px solid var(--azul-claro); }
+  .btn-secondary:hover { background: #f0fafc; }
+  .btn-ghost { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 8px 0; font-family: 'Inter', sans-serif; }
+
+  .sucesso { background: var(--white); border-radius: 12px; padding: 60px 32px; text-align: center; box-shadow: 0 2px 12px rgba(13,31,110,.08); }
+  .sucesso .icon { font-size: 56px; margin-bottom: 20px; }
+  .sucesso h2 { font-size: 22px; font-weight: 600; color: var(--azul); margin-bottom: 12px; }
+  .sucesso p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,.85); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .loading-overlay.ativo { display: flex; }
+  .spinner { width: 40px; height: 40px; border: 3px solid #d0e8ee; border-top-color: var(--azul-claro); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
 </head>
 <body>
-  <div class="box">
-    <div class="logo">coRPop</div>
-    <p>Redirecionando para a pesquisa...</p>
-    <p>Se não redirecionar, <a id="link" href="#">clique aqui</a>.</p>
+
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <span style="font-size:13px;color:var(--azul-claro)">Enviando respostas...</span>
+</div>
+
+<div class="wrapper" id="app">
+  <div class="header-card">
+    <div class="logo">co<span>RP</span>op</div>
+    <div class="logo-sub">Comunicação</div>
+    <h1>Pesquisa sobre Experiência em Rodovias</h1>
+    <p>Somos a coRPop, uma agência experimental de Relações Públicas desenvolvendo nosso Projeto de Conclusão de Curso. Esta pesquisa busca entender hábitos, percepções e expectativas de quem utiliza rodovias.</p>
+    <p>O questionário é anônimo e leva cerca de 8 minutos. Sua participação é muito importante!</p>
+    <p><strong>Um grande abraço, coRPop</strong></p>
+    <p class="req-note">* Campos obrigatórios</p>
   </div>
-  <script>
-    const url = 'https://script.google.com/macros/s/AKfycbzubOEuxqURm_115rA_o2Ig2hEpyDP25v32Genln719RToU7kNBRYfpsW22DxTsuNPF/exec';
-    document.getElementById('link').href = url;
-    window.location.replace(url);
-  </script>
+
+  <div class="progress-card">
+    <div class="progress-top">
+      <div>
+        <div class="progress-label" id="prog-label">Bloco 1 — Perfil do Respondente</div>
+        <div class="steps" id="steps-dots"></div>
+      </div>
+      <div class="progress-pct" id="prog-pct">0%</div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="prog-bar" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div id="sessoes"></div>
+
+  <div class="nav-btns" id="nav-btns">
+    <button class="btn btn-secondary" id="btn-voltar" onclick="voltar()" style="display:none">← Voltar</button>
+    <button class="btn-ghost" onclick="if(confirm('Limpar todas as respostas?'))location.reload()">Limpar</button>
+    <button class="btn btn-primary" id="btn-avancar" onclick="avancar()">Próximo →</button>
+  </div>
+</div>
+
+<div class="wrapper" id="tela-sucesso" style="display:none">
+  <div class="sucesso">
+    <div class="icon">✅</div>
+    <h2>Resposta enviada!</h2>
+    <p>Obrigado por participar da pesquisa da coRPop.<br>Sua contribuição é fundamental para o nosso trabalho.</p>
+    <button class="btn btn-primary" style="margin-top:24px" onclick="location.reload()">Enviar outra resposta</button>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// DADOS GEOGRÁFICOS
+// ══════════════════════════════════════
+const GEO = {
+  "Acre":["Acrelândia","Assis Brasil","Brasileia","Bujari","Capixaba","Cruzeiro do Sul","Epitaciolândia","Feijó","Jordão","Mâncio Lima","Manoel Urbano","Marechal Thaumaturgo","Plácido de Castro","Porto Acre","Porto Walter","Rio Branco","Rodrigues Alves","Santa Rosa do Purus","Sena Madureira","Senador Guiomard","Tarauacá","Xapuri"],
+  "Alagoas":["Água Branca","Anadia","Arapiraca","Atalaia","Barra de Santo Antônio","Batalha","Belém","Boca da Mata","Campo Alegre","Colônia Leopoldina","Coruripe","Delmiro Gouveia","Girau do Ponciano","Igreja Nova","Joaquim Gomes","Junqueiro","Maceió","Major Isidoro","Marechal Deodoro","Mata Grande","Murici","Palmeira dos Índios","Penedo","Pilar","Rio Largo","Santana do Ipanema","São Luís do Quitunde","São Miguel dos Campos","São Sebastião","Teotônio Vilela","Traipu","União dos Palmares","Viçosa"],
+  "Amapá":["Amapá","Calçoene","Cutias","Ferreira Gomes","Itaubal","Laranjal do Jari","Macapá","Mazagão","Oiapoque","Pedra Branca do Amapari","Porto Grande","Pracuúba","Santana","Serra do Navio","Tartarugalzinho","Vitória do Jari"],
+  "Amazonas":["Alvarães","Amaturá","Anamã","Anori","Apuí","Atalaia do Norte","Autazes","Barcelos","Barreirinha","Benjamin Constant","Borba","Carauari","Careiro","Coari","Codajás","Eirunepé","Envira","Fonte Boa","Humaitá","Ipixuna","Iranduba","Itacoatiara","Itamarati","Juruá","Lábrea","Manacapuru","Manaus","Manicoré","Maués","Nova Olinda do Norte","Novo Airão","Novo Aripuanã","Parintins","Pauini","Presidente Figueiredo","Rio Preto da Eva","Santo Antônio do Içá","São Gabriel da Cachoeira","São Paulo de Olivença","Tabatinga","Tapauá","Tefé","Tonantins","Urucará"],
+  "Bahia":["Alagoinhas","Barreiras","Belmonte","Boa Nova","Bom Jesus da Lapa","Brumado","Caetité","Camaçari","Casa Nova","Catu","Cruz das Almas","Dias d'Ávila","Eunápolis","Feira de Santana","Guanambi","Ilhéus","Ipiaú","Itabuna","Jacobina","Jequié","Jeremoabo","Juazeiro","Lauro de Freitas","Luís Eduardo Magalhães","Maragogipe","Mucuri","Mundo Novo","Porto Seguro","Prado","Queimadas","Remanso","Ribeira do Pombal","Rio Real","Salvador","Santo Amaro","Santo Antônio de Jesus","São Desidério","São Francisco do Conde","Seabra","Senhor do Bonfim","Serrinha","Simões Filho","Teixeira de Freitas","Valença","Vitória da Conquista","Xique-Xique"],
+  "Ceará":["Acaraú","Acopiara","Aracati","Baturité","Beberibe","Brejo Santo","Camocim","Canindé","Cascavel","Caucaia","Crato","Crateús","Fortaleza","Granja","Guaraciaba do Norte","Horizonte","Iguatu","Ipu","Itapipoca","Juazeiro do Norte","Limoeiro do Norte","Maracanaú","Maranguape","Mauriti","Missão Velha","Morada Nova","Pacajus","Pacatuba","Quixadá","Quixeramobim","Russas","São Benedito","Sobral","Tauá","Tianguá","Ubajara","Várzea Alegre","Viçosa do Ceará"],
+  "Distrito Federal":["Águas Claras","Brazlândia","Brasília","Candangolândia","Ceilândia","Cruzeiro","Fercal","Gama","Guará","Itapoã","Jardim Botânico","Lago Norte","Lago Sul","Núcleo Bandeirante","Paranoá","Park Way","Planaltina","Plano Piloto","Recanto das Emas","Riacho Fundo","Samambaia","Santa Maria","São Sebastião","Sobradinho","Sobradinho II","Sol Nascente","Sudoeste","Taguatinga","Varjão","Vicente Pires"],
+  "Espírito Santo":["Afonso Cláudio","Alegre","Alfredo Chaves","Anchieta","Aracruz","Baixo Guandu","Barra de São Francisco","Cachoeiro de Itapemirim","Cariacica","Castelo","Colatina","Conceição da Barra","Domingos Martins","Ecoporanga","Fundão","Guarapari","Ibatiba","Iconha","Itaguaçu","Itapemirim","Iúna","Jaguaré","Linhares","Marataízes","Mimoso do Sul","Montanha","Mucurici","Muniz Freire","Nova Venécia","Pancas","Pedro Canário","Pinheiros","Piúma","Rio Bananal","Santa Leopoldina","Santa Maria de Jetibá","Santa Teresa","São Domingos do Norte","São Gabriel da Palha","São Mateus","Serra","Sooretama","Viana","Vila Velha","Vitória"],
+  "Goiás":["Águas Lindas de Goiás","Alexânia","Anápolis","Aparecida de Goiânia","Aragarças","Barro Alto","Caldas Novas","Catalão","Ceres","Cidade Ocidental","Cristalina","Crixás","Formosa","Goiânia","Goianésia","Goiás","Goiatuba","Inhumas","Ipameri","Iporá","Itaberaí","Itapaci","Itapuranga","Itumbiara","Jaraguá","Jataí","Jussara","Luziânia","Minaçu","Mineiros","Morrinhos","Niquelândia","Nova Veneza","Novo Gama","Padre Bernardo","Pirenópolis","Pires do Rio","Planaltina","Porangatu","Posse","Quirinópolis","Rio Verde","Rubiataba","Senador Canedo","Trindade","Uruaçu","Uruana","Valparaíso de Goiás"],
+  "Maranhão":["Açailândia","Alcântara","Aldeias Altas","Alto Alegre do Pindaré","Alto Parnaíba","Bacabal","Balsas","Barra do Corda","Barreirinhas","Bom Jardim","Buriti","Caxias","Chapadinha","Codó","Coelho Neto","Colinas","Coroatá","Dom Pedro","Estreito","Grajaú","Guimarães","Imperatriz","Itapecuru Mirim","João Lisboa","Lago da Pedra","Magalhães de Almeida","Miranda do Norte","Paço do Lumiar","Pinheiro","Presidente Dutra","Raposa","Rosário","Santa Helena","Santa Inês","Santa Rita","São Bento","São Bernardo","São João Batista","São José de Ribamar","São Luís","Timon","Tuntum","Turiaçu","Viana","Vitória do Mearim","Zé Doca"],
+  "Mato Grosso":["Água Boa","Alta Floresta","Alto Araguaia","Alto Garças","Barra do Garças","Canarana","Colíder","Confresa","Cuiabá","Diamantino","Juara","Juína","Lucas do Rio Verde","Matupá","Nova Mutum","Nova Xavantina","Novo Mundo","Pontes e Lacerda","Primavera do Leste","Rondonópolis","Sinop","Sorriso","Tangará da Serra","Várzea Grande","Vila Rica"],
+  "Mato Grosso do Sul":["Aquidauana","Bonito","Campo Grande","Corumbá","Coxim","Dourados","Naviraí","Nova Andradina","Paranaíba","Ponta Porã","Sidrolândia","Três Lagoas"],
+  "Minas Gerais":["Além Paraíba","Alfenas","Araxá","Barbacena","Belo Horizonte","Betim","Caratinga","Conselheiro Lafaiete","Contagem","Coronel Fabriciano","Curvelo","Divinópolis","Governador Valadares","Ipatinga","Itabira","Itajubá","Itaúna","Juiz de Fora","Lavras","Manhuaçu","Montes Claros","Muriaé","Ouro Preto","Patos de Minas","Patrocínio","Poços de Caldas","Pouso Alegre","Ribeirão das Neves","Sabará","Santa Luzia","São João del Rei","Sete Lagoas","Teófilo Otoni","Uberaba","Uberlândia","Unaí","Varginha","Viçosa"],
+  "Pará":["Abaetetuba","Altamira","Ananindeua","Barcarena","Belém","Bragança","Cametá","Castanhal","Itaituba","Marabá","Marituba","Novo Progresso","Paragominas","Parauapebas","Redenção","Santarém","Tailândia","Tucuruí","Xinguara"],
+  "Paraíba":["Bayeux","Cabedelo","Cajazeiras","Campina Grande","Guarabira","João Pessoa","Patos","Santa Rita","Sapé","Sousa"],
+  "Paraná":["Almirante Tamandaré","Apucarana","Arapongas","Araucária","Cambé","Campo Largo","Campo Mourão","Cascavel","Castro","Colombo","Curitiba","Fazenda Rio Grande","Foz do Iguaçu","Francisco Beltrão","Guarapuava","Londrina","Marechal Cândido Rondon","Maringá","Paranaguá","Paranavaí","Pato Branco","Pinhais","Ponta Grossa","Rolândia","São José dos Pinhais","Toledo","Umuarama"],
+  "Pernambuco":["Caruaru","Garanhuns","Jaboatão dos Guararapes","Olinda","Paulista","Petrolina","Recife","Santa Cruz do Capibaribe","Serra Talhada","Vitória de Santo Antão"],
+  "Piauí":["Altos","Barras","Campo Maior","Floriano","José de Freitas","Parnaíba","Picos","Piripiri","Teresina","União"],
+  "Rio de Janeiro":["Angra dos Reis","Belford Roxo","Cabo Frio","Campos dos Goytacazes","Duque de Caxias","Itaboraí","Macaé","Mesquita","Niterói","Nova Friburgo","Nova Iguaçu","Petrópolis","Queimados","Resende","Rio de Janeiro","São Gonçalo","São João de Meriti","Saquarema","Teresópolis","Volta Redonda"],
+  "Rio Grande do Norte":["Caicó","Ceará-Mirim","Currais Novos","Macaíba","Mossoró","Natal","Parnamirim","Santa Cruz","São Gonçalo do Amarante","São José de Mipibu"],
+  "Rio Grande do Sul":["Alvorada","Bagé","Bento Gonçalves","Cachoeirinha","Canoas","Caxias do Sul","Erechim","Gravataí","Novo Hamburgo","Passo Fundo","Pelotas","Porto Alegre","Rio Grande","Santa Maria","São Leopoldo","Uruguaiana","Viamão"],
+  "Rondônia":["Ariquemes","Cacoal","Guajará-Mirim","Ji-Paraná","Ouro Preto do Oeste","Porto Velho","Rolim de Moura","Vilhena"],
+  "Roraima":["Boa Vista","Bonfim","Caracaraí","Mucajaí","Pacaraima","Rorainópolis"],
+  "Santa Catarina":["Araranguá","Balneário Camboriú","Blumenau","Brusque","Caçador","Chapecó","Concórdia","Criciúma","Florianópolis","Itajaí","Itapema","Jaraguá do Sul","Joinville","Lages","Palhoça","São Bento do Sul","São José","Tubarão","Xanxerê"],
+  "São Paulo":["Araçatuba","Araraquara","Assis","Atibaia","Barretos","Barueri","Bauru","Campinas","Carapicuíba","Cotia","Diadema","Franca","Guarujá","Guarulhos","Indaiatuba","Itapetininga","Jacareí","Jundiaí","Limeira","Marília","Mauá","Mogi das Cruzes","Osasco","Piracicaba","Praia Grande","Presidente Prudente","Ribeirão Preto","Rio Claro","Santo André","Santos","São Bernardo do Campo","São Caetano do Sul","São Carlos","São José do Rio Preto","São José dos Campos","São Paulo","São Vicente","Sorocaba","Sumaré","Taubaté"],
+  "Sergipe":["Aracaju","Estância","Itabaiana","Lagarto","Nossa Senhora da Glória","Nossa Senhora do Socorro","São Cristóvão","Simão Dias","Tobias Barreto"],
+  "Tocantins":["Araguaína","Colinas do Tocantins","Dianópolis","Guaraí","Gurupi","Miranorte","Palmas","Paraíso do Tocantins","Porto Nacional","Tocantinópolis"]
+};
+
+// ══════════════════════════════════════
+// ESTADO GLOBAL — salva TODAS as respostas
+// ══════════════════════════════════════
+const ESTADO = {
+  // Bloco 1
+  idade:'', genero:'', generoOutro:'', escolaridade:'', renda:'',
+  estado:'', cidade:'', tipoUsuario:'', tipoUsuarioOutro:'',
+  finalidade:'', finalidadeOutro:'',
+  // Bloco 2
+  freqUso:'', rodovias:{}, concessoes:[], rankingFatores:[],
+  // Bloco 3
+  sabeConcessao:'', difPedagio:'',
+  // Bloco 4
+  importancia:{}, desempenho:{},
+  pavConc:'', segConc:'', segConc2:'', falhasConc:'',
+  // Bloco 5
+  pedagJusto:'', pedagClaro:'', pedagDesconto:'',
+  // Bloco 6
+  contato:'',
+  // Bloco 7
+  canalUtil:'', commSeguro:'', commProx:'',
+  momentoInfo:[], formatoComm:[], campanhas:[], efetividade:{},
+  // Bloco 8
+  sabeAdmin:'', associaGestao:'', marcaInfluencia:'',
+  // Bloco 9
+  melhoria:'', frase:'', comentarios:''
+};
+
+let sessaoAtual = 0;
+const SESSOES = [
+  { bloco:1, titulo:'Perfil do Respondente' },
+  { bloco:2, titulo:'Uso e Experiência com Rodovias' },
+  { bloco:3, titulo:'Conhecimento e Percepção de Gestão' },
+  { bloco:4, titulo:'Experiência, Qualidade e Expectativas' },
+  { bloco:5, titulo:'Pedágio e Custo-Benefício' },
+  { bloco:6, titulo:'Comunicação' },
+  { bloco:7, titulo:'Comunicação — Canais e Campanhas' },
+  { bloco:8, titulo:'Marca' },
+  { bloco:9, titulo:'Expectativas e Insights' },
+];
+
+const RODOVIAS = ['Imigrantes (SP-160)','Anchieta (SP-150)','Raposo Tavares (SP-270)','Castelo Branco (SP-280)','Bandeirantes (SP-348)','Ayrton Senna (SP-070)','Carvalho Pinto (SP-070)','Leste Paulista','Noroeste Paulista','Anhanguera (SP-330)','Presidente Dutra (BR-116)','Tamoios (SP-099)'];
+const FATORES = ['Segurança','Qualidade do pavimento','Tempo de viagem','Custo (pedágio)','Sinalização','Atendimento emergencial'];
+const IMP_ITENS = ['Qualidade do pavimento (sem buracos, regular)','Sinalização clara','Segurança','Atendimento emergencial','Iluminação'];
+const DESP_ITENS = ['Pavimento','Sinalização','Segurança','Atendimento','Conservação geral'];
+const EF_ITENS = ['Clareza','Coerência','Frequência','Rapidez de resposta'];
+
+window.onload = function() { renderSessao(); };
+
+// ══════════════════════════════════════
+// PROGRESS
+// ══════════════════════════════════════
+function atualizarProgress() {
+  const pct = Math.round((sessaoAtual / SESSOES.length) * 100);
+  document.getElementById('prog-bar').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-label').textContent = `Bloco ${SESSOES[sessaoAtual].bloco} — ${SESSOES[sessaoAtual].titulo}`;
+  document.getElementById('steps-dots').innerHTML = SESSOES.map((_,i) =>
+    `<div class="step-dot ${i===sessaoAtual?'ativo':i<sessaoAtual?'feito':''}"></div>`).join('');
+  document.getElementById('btn-voltar').style.display = sessaoAtual > 0 ? 'block' : 'none';
+  document.getElementById('btn-avancar').textContent = sessaoAtual === SESSOES.length-1 ? 'Enviar ✓' : 'Próximo →';
+}
+
+// ══════════════════════════════════════
+// SALVAR ESTADO ATUAL (antes de trocar sessão)
+// ══════════════════════════════════════
+function salvarEstadoAtual() {
+  const s = sessaoAtual;
+  if (s === 0) {
+    ESTADO.idade = getR('idade');
+    ESTADO.genero = getR('genero') === '__outro__' ? 'Outro' : getR('genero');
+    ESTADO.generoOutro = document.getElementById('genero_outro_t') ? document.getElementById('genero_outro_t').value : '';
+    ESTADO.escolaridade = getR('escolaridade');
+    ESTADO.renda = getR('renda');
+    ESTADO.estado = document.getElementById('sel-estado') ? document.getElementById('sel-estado').value : '';
+    ESTADO.cidade = document.getElementById('sel-cidade') ? document.getElementById('sel-cidade').value : '';
+    ESTADO.tipoUsuario = getR('tipoUsuario') === '__outro__' ? 'Outro' : getR('tipoUsuario');
+    ESTADO.tipoUsuarioOutro = document.getElementById('tipoUsuario_outro_t') ? document.getElementById('tipoUsuario_outro_t').value : '';
+    const f = getR('finalidade');
+    ESTADO.finalidade = f === '__outro__' ? 'Outro' : f;
+    ESTADO.finalidadeOutro = document.getElementById('finalidade_outro_t') ? document.getElementById('finalidade_outro_t').value : '';
+  }
+  if (s === 1) {
+    ESTADO.freqUso = getR('freq');
+    RODOVIAS.forEach((r,i) => { const v = getR('rod_'+i); if(v) ESTADO.rodovias[r] = v; });
+    ESTADO.concessoes = getCBs('concessoes');
+    if (Object.keys(rankingSelecoes).length > 0) {
+      const ordenado = Object.entries(rankingSelecoes).sort((a,b)=>a[1]-b[1]).map(([f])=>f);
+      ESTADO.rankingFatores = ordenado;
+    }
+  }
+  if (s === 2) {
+    ESTADO.sabeConcessao = getR('sabeConcessao');
+    ESTADO.difPedagio = getR('difPedagio');
+  }
+  if (s === 3) {
+    IMP_ITENS.forEach(item => { ESTADO.importancia[item] = getR('imp_'+slug(item)); });
+    DESP_ITENS.forEach(item => { ESTADO.desempenho[item] = getR('desp_'+slug(item)); });
+    ESTADO.pavConc = getR('pavConc');
+    ESTADO.segConc = getR('segConc');
+    ESTADO.segConc2 = getR('segConc2');
+    ESTADO.falhasConc = getR('falhasConc');
+  }
+  if (s === 4) {
+    ESTADO.pedagJusto = getR('pedagJusto');
+    ESTADO.pedagClaro = getR('pedagClaro');
+    ESTADO.pedagDesconto = getR('pedagDesconto');
+  }
+  if (s === 5) {
+    ESTADO.contato = getR('contato');
+  }
+  if (s === 6) {
+    ESTADO.canalUtil = getR('canalUtil');
+    ESTADO.commSeguro = getR('commSeguro');
+    ESTADO.commProx = getR('commProx');
+    ESTADO.momentoInfo = getCBs('momentoInfo');
+    ESTADO.formatoComm = getCBs('formatoComm');
+    ESTADO.campanhas = getCBs('campanhas');
+    EF_ITENS.forEach(item => { ESTADO.efetividade[item] = getR('ef_'+slug(item)); });
+  }
+  if (s === 7) {
+    ESTADO.sabeAdmin = getR('sabeAdmin');
+    ESTADO.associaGestao = getR('associaGestao');
+    ESTADO.marcaInfluencia = getR('marcaInfluencia');
+  }
+  if (s === 8) {
+    ESTADO.melhoria = document.getElementById('txt-melhoria') ? document.getElementById('txt-melhoria').value : '';
+    ESTADO.frase = document.getElementById('txt-frase') ? document.getElementById('txt-frase').value : '';
+    ESTADO.comentarios = document.getElementById('txt-comentarios') ? document.getElementById('txt-comentarios').value : '';
+  }
+}
+
+function slug(s) { return s.replace(/\s+/g,'_').replace(/[^a-zA-Z0-9_]/g,''); }
+function getR(name) { const el = document.querySelector(`input[name="${name}"]:checked`); return el ? el.value : ''; }
+function getCBs(name) { return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(e=>e.value); }
+
+// ══════════════════════════════════════
+// RESTAURAR ESTADO (ao voltar)
+// ══════════════════════════════════════
+function restaurarEstado() {
+  const s = sessaoAtual;
+  const delay = () => setTimeout(() => {
+    if (s === 0) {
+      setR('idade', ESTADO.idade);
+      if (ESTADO.genero === 'Outro') { setR('genero','__outro__'); if(document.getElementById('genero_outro_t')) document.getElementById('genero_outro_t').value = ESTADO.generoOutro; }
+      else setR('genero', ESTADO.genero);
+      setR('escolaridade', ESTADO.escolaridade);
+      setR('renda', ESTADO.renda);
+      if (ESTADO.estado && document.getElementById('sel-estado')) {
+        document.getElementById('sel-estado').value = ESTADO.estado;
+        atualizarCidades();
+        setTimeout(() => { if (document.getElementById('sel-cidade')) document.getElementById('sel-cidade').value = ESTADO.cidade; }, 100);
+      }
+      if (ESTADO.tipoUsuario === 'Outro') { setR('tipoUsuario','__outro__'); if(document.getElementById('tipoUsuario_outro_t')) document.getElementById('tipoUsuario_outro_t').value = ESTADO.tipoUsuarioOutro; }
+      else setR('tipoUsuario', ESTADO.tipoUsuario);
+      if (ESTADO.finalidade === 'Outro') { setR('finalidade','__outro__'); if(document.getElementById('finalidade_outro_t')) document.getElementById('finalidade_outro_t').value = ESTADO.finalidadeOutro; }
+      else setR('finalidade', ESTADO.finalidade);
+    }
+    if (s === 1) {
+      setR('freq', ESTADO.freqUso);
+      RODOVIAS.forEach((r,i) => { if(ESTADO.rodovias[r]) setR('rod_'+i, ESTADO.rodovias[r]); });
+      ESTADO.concessoes.forEach(v => { const el = document.querySelector(`input[name="concessoes"][value="${v}"]`); if(el) el.checked = true; });
+      if (ESTADO.rankingFatores.length > 0) {
+        ESTADO.rankingFatores.forEach((fator, i) => {
+          rankingSelecoes[fator] = i + 1;
+          const slug = fator.replace(/[\s()]/g,'_');
+          const btn = document.getElementById(`rank-btn-${slug}-${i+1}`);
+          if (btn) {
+            btn.classList.add('sel');
+            btn.style.background = 'var(--azul-claro)';
+            btn.style.color = '#fff';
+            btn.style.borderColor = 'var(--azul-claro)';
+          }
+        });
+      }
+    }
+    if (s === 2) { setR('sabeConcessao',ESTADO.sabeConcessao); setR('difPedagio',ESTADO.difPedagio); }
+    if (s === 3) {
+      IMP_ITENS.forEach(item => setR('imp_'+slug(item), ESTADO.importancia[item]||''));
+      DESP_ITENS.forEach(item => setR('desp_'+slug(item), ESTADO.desempenho[item]||''));
+      setR('pavConc',ESTADO.pavConc); setR('segConc',ESTADO.segConc);
+      setR('segConc2',ESTADO.segConc2); setR('falhasConc',ESTADO.falhasConc);
+    }
+    if (s === 4) { setR('pedagJusto',ESTADO.pedagJusto); setR('pedagClaro',ESTADO.pedagClaro); setR('pedagDesconto',ESTADO.pedagDesconto); }
+    if (s === 5) { setR('contato',ESTADO.contato); }
+    if (s === 6) {
+      setR('canalUtil',ESTADO.canalUtil); setR('commSeguro',ESTADO.commSeguro); setR('commProx',ESTADO.commProx);
+      ESTADO.momentoInfo.forEach(v => { const el = document.querySelector(`input[name="momentoInfo"][value="${v}"]`); if(el) el.checked=true; });
+      ESTADO.formatoComm.forEach(v => { const el = document.querySelector(`input[name="formatoComm"][value="${v}"]`); if(el) el.checked=true; });
+      ESTADO.campanhas.forEach(v => { const el = document.querySelector(`input[name="campanhas"][value="${v}"]`); if(el) el.checked=true; });
+      EF_ITENS.forEach(item => setR('ef_'+slug(item), ESTADO.efetividade[item]||''));
+    }
+    if (s === 7) { setR('sabeAdmin',ESTADO.sabeAdmin); setR('associaGestao',ESTADO.associaGestao); setR('marcaInfluencia',ESTADO.marcaInfluencia); }
+    if (s === 8) {
+      if(document.getElementById('txt-melhoria')) document.getElementById('txt-melhoria').value = ESTADO.melhoria;
+      if(document.getElementById('txt-frase')) document.getElementById('txt-frase').value = ESTADO.frase;
+      if(document.getElementById('txt-comentarios')) document.getElementById('txt-comentarios').value = ESTADO.comentarios;
+    }
+  }, 50);
+  delay();
+}
+
+function setR(name, value) {
+  if (!value) return;
+  const el = document.querySelector(`input[name="${name}"][value="${value}"]`);
+  if (el) el.checked = true;
+}
+
+// ══════════════════════════════════════
+// RENDER SESSÃO
+// ══════════════════════════════════════
+const RENDERS = [renderS1,renderS2,renderS3,renderS4,renderS5,renderS6,renderS7,renderS8,renderS9];
+
+function renderSessao() {
+  const c = document.getElementById('sessoes');
+  c.innerHTML = '';
+  RENDERS[sessaoAtual](c);
+  atualizarProgress();
+  restaurarEstado();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ══════════════════════════════════════
+// HELPERS HTML
+// ══════════════════════════════════════
+function bH(n,t,s){ return `<div class="bloco-header"><div class="num">${n}</div><div><h2>${t}</h2>${s?`<p>${s}</p>`:''}</div></div>`; }
+
+function cRadio(id,perg,opts,obrig,hint) {
+  const req = obrig?'<span class="req">*</span>':'';
+  const h = hint?`<span class="hint">${hint}</span>`:'';
+  const os = opts.map(o => o==='__outro__'
+    ? `<div class="outro-wrapper"><input type="radio" name="${id}" value="__outro__" id="${id}_outro_r"><span class="outro-label">Outro:</span><input type="text" class="outro-input" id="${id}_outro_t" onfocus="document.getElementById('${id}_outro_r').checked=true"></div>`
+    : `<label class="opcao"><input type="radio" name="${id}" value="${o}"><span>${o}</span></label>`
+  ).join('');
+  return `<div class="card" id="card-${id}"><div class="pergunta">${perg}${req}${h}</div><div class="opcoes">${os}</div><p class="erro-msg">Por favor, selecione uma opção.</p></div>`;
+}
+
+function cCheck(id,perg,opts,obrig,hint) {
+  const req = obrig?'<span class="req">*</span>':'';
+  const h = hint?`<span class="hint">${hint}</span>`:'';
+  const os = opts.map(o=>`<label class="opcao"><input type="checkbox" name="${id}" value="${o}"><span>${o}</span></label>`).join('');
+  return `<div class="card" id="card-${id}"><div class="pergunta">${perg}${req}${h}</div><div class="opcoes">${os}</div><p class="erro-msg">Selecione ao menos uma opção.</p></div>`;
+}
+
+function cLikert(id,perg,itens,obrig) {
+  const req = obrig?'<span class="req">*</span>':'';
+  const rows = itens.map(item=>`
+    <div class="likert-item">
+      <div class="likert-label">${item}</div>
+      <div class="likert-escala">
+        ${[1,2,3,4,5].map(n=>`<label><input type="radio" name="${id}_${slug(item)}" value="${n}"><span>${n}</span></label>`).join('')}
+      </div>
+    </div>`).join('');
+  return `<div class="card" id="card-${id}"><div class="pergunta">${perg}${req}</div><div class="likert-leg"><span>1 = Mínimo</span><span>5 = Máximo</span></div><div class="likert-wrap" style="margin-top:12px">${rows}</div><p class="erro-msg">Por favor, avalie todos os itens.</p></div>`;
+}
+
+// ══════════════════════════════════════
+// SESSÕES
+// ══════════════════════════════════════
+function renderS1(c) {
+  c.innerHTML = bH(1,'Perfil do Respondente','Bloco 1 de 9') +
+    cRadio('idade','Qual sua idade?',['Até 24 anos','25–34 anos','35–44 anos','45–54 anos','55–64 anos','65 anos ou mais'],true) +
+    cRadio('genero','Gênero',['Feminino','Masculino','Prefiro não informar','__outro__'],true) +
+    cRadio('escolaridade','Escolaridade',['Ensino Fundamental','Ensino Médio','Ensino Superior incompleto','Ensino Superior completo','Pós-graduação'],true) +
+    cRadio('renda','Renda familiar mensal',['Até 2 salários mínimos','De 2 a 5 salários mínimos','De 5 a 10 salários mínimos','Acima de 10 salários mínimos','Prefiro não informar'],true) +
+    `<div class="card" id="card-estado">
+      <div class="pergunta">Estado onde mora<span class="req">*</span></div>
+      <div class="select-wrap">
+        <select id="sel-estado" onchange="atualizarCidades()">
+          <option value="">Selecione o estado...</option>
+          ${Object.keys(GEO).sort().map(e=>`<option value="${e}">${e}</option>`).join('')}
+        </select>
+      </div>
+      <p class="erro-msg">Por favor, selecione um estado.</p>
+    </div>
+    <div class="card">
+      <div class="pergunta">Cidade onde mora</div>
+      <div class="select-wrap"><select id="sel-cidade" disabled><option value="">Selecione um estado primeiro...</option></select></div>
+    </div>` +
+    cRadio('tipoUsuario','Tipo de usuário',['Motorista de passeio','Motorista profissional','Motociclista','__outro__'],true) +
+    cRadio('finalidade','Finalidade principal do uso das rodovias',['Trabalho (deslocamento pendular)','Lazer','Transporte de cargas','Visitas familiares','Nunca utilizei','__outro__'],true,'Se nunca utilizou rodovias, o formulário será enviado ao selecionar essa opção.');
+}
+
+function atualizarCidades() {
+  const e = document.getElementById('sel-estado').value;
+  const s = document.getElementById('sel-cidade');
+  s.innerHTML = '<option value="">Selecione a cidade...</option>';
+  if (e && GEO[e]) { GEO[e].sort().forEach(c => s.innerHTML += `<option value="${c}">${c}</option>`); s.disabled=false; }
+  else s.disabled=true;
+}
+
+function validarS1() {
+  let ok = true;
+  ['idade','genero','escolaridade','renda','tipoUsuario','finalidade'].forEach(n => {
+    const v = getR(n), card = document.getElementById('card-'+n);
+    if (!v) { card.classList.add('erro'); ok=false; } else card.classList.remove('erro');
+  });
+  const e = document.getElementById('sel-estado').value, card = document.getElementById('card-estado');
+  if (!e) { card.classList.add('erro'); ok=false; } else card.classList.remove('erro');
+  return ok;
+}
+
+function renderS2(c) {
+  const freqs = ['Diariamente','Semanalmente','Mensalmente','Esporadicamente','Nunca'];
+  const rows = RODOVIAS.map((r,i)=>`<tr><td>${r}</td>${freqs.map(f=>`<td><input type="radio" name="rod_${i}" value="${f}"></td>`).join('')}</tr>`).join('');
+  c.innerHTML = bH(2,'Uso e Experiência com Rodovias','Bloco 2 de 9') +
+    cRadio('freq','Com que frequência você utiliza rodovias?',['Diariamente','Semanalmente','Mensalmente','Esporadicamente'],true) +
+    `<div class="card" id="card-rodovias">
+      <div class="pergunta">Indique sua frequência de uso em cada rodovia<span class="req">*</span></div>
+      <div class="matriz-wrap">
+        <table class="matriz"><thead><tr><th>Rodovia</th>${freqs.map(f=>`<th>${f}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table>
+      </div>
+      <p class="erro-msg">Por favor, avalie ao menos uma rodovia.</p>
+    </div>` +
+    cCheck('concessoes','Quais concessões rodoviárias você conhece?',['EcoRodovias','CCR (Motiva)','Arteris','Grupo EPR','Via Appia'],false,'Pode marcar mais de uma.') +
+    `<div class="card" id="card-ranking">
+      <div class="pergunta">Ordene por importância os fatores para sua experiência na rodovia<span class="req">*</span>
+        <span class="hint">Atribua uma posição de 1 (mais importante) a 6 (menos importante). Não repita posições.</span>
+      </div>
+      <div id="ranking-select-wrap">
+        ${FATORES.map(f => `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;margin-bottom:8px;flex-wrap:wrap;">
+            <div style="flex:1;font-size:13px;color:var(--text);min-width:160px">${f}</div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${[1,2,3,4,5,6].map(n => `
+                <button type="button"
+                  onclick="selecionarPosicao('${f.replace(/[\s()]/g,'_')}','${f}',${n})"
+                  id="rank-btn-${f.replace(/[\s()]/g,'_')}-${n}"
+                  style="width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;"
+                >${n}</button>`).join('')}
+            </div>
+          </div>`).join('')}
+      </div>
+      <p class="erro-msg" id="rank-erro" style="display:none">Por favor, atribua uma posição para cada fator sem repetir.</p>
+    </div>`;
+}
+
+function validarS2() {
+  let ok = true;
+  if (!getR('freq')) { document.getElementById('card-freq').classList.add('erro'); ok=false; }
+  else document.getElementById('card-freq').classList.remove('erro');
+  if (!document.querySelector('[name^="rod_"]:checked')) { document.getElementById('card-rodovias').classList.add('erro'); ok=false; }
+  else document.getElementById('card-rodovias').classList.remove('erro');
+  const rankCompleto = FATORES.every(f => rankingSelecoes[f]);
+  const semRepetir = new Set(Object.values(rankingSelecoes)).size === FATORES.length;
+  const cardRank = document.getElementById('card-ranking');
+  if (!rankCompleto || !semRepetir) {
+    cardRank.classList.add('erro');
+    document.getElementById('rank-erro').style.display = 'block';
+    ok = false;
+  } else {
+    cardRank.classList.remove('erro');
+    document.getElementById('rank-erro').style.display = 'none';
+  }
+  return ok;
+}
+
+function renderS3(c) {
+  c.innerHTML = bH(3,'Conhecimento e Percepção de Gestão','Bloco 3 de 9') +
+    cRadio('sabeConcessao','Você sabe o que é uma concessão rodoviária?',['Sim','Não'],true) +
+    cRadio('difPedagio','A diferença entre rodovias com e sem pedágio está relacionada a qual fator?',[
+      'Tipo de gestão (empresa privada vs pública)','Manutenção da rodovia','Atendimento',
+      'Percebo diferença, mas não sei explicar','Não percebo diferença entre rodovias com e sem pedágio'],true);
+}
+function validarS3() {
+  let ok=true;
+  ['sabeConcessao','difPedagio'].forEach(n => {
+    const v=getR(n),c=document.getElementById('card-'+n);
+    if(!v){c.classList.add('erro');ok=false;}else c.classList.remove('erro');
+  });
+  return ok;
+}
+
+function renderS4(c) {
+  c.innerHTML = bH(4,'Experiência, Qualidade e Expectativas','Bloco 4 de 9') +
+    `<div class="card"><div class="pergunta" style="color:var(--azul);font-weight:600">Responda com base na rodovia que você mais utiliza.</div></div>` +
+    cLikert('imp','Avalie a IMPORTÂNCIA dos fatores para sua experiência<span style="font-size:11px;color:var(--muted)"> (1=Nada importante | 5=Muito importante)</span>',IMP_ITENS,true) +
+    cLikert('desp','Avalie o DESEMPENHO da rodovia que você mais usa<span style="font-size:11px;color:var(--muted)"> (1=Muito ruim | 5=Muito bom)</span>',DESP_ITENS,true) +
+    cRadio('pavConc','O estado do pavimento influencia diretamente minha percepção de qualidade da rodovia.',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true,'Sobre o pavimento:') +
+    cRadio('segConc','Sinto que a rodovia oferece condições seguras durante toda a viagem.',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true,'Sobre segurança:') +
+    cRadio('segConc2','Só percebo a segurança da rodovia quando algo dá errado.',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true,'Ainda sobre segurança:') +
+    cRadio('falhasConc','Minha avaliação depende mais da ausência de problemas do que da presença de melhorias.',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true,'Sobre falhas:');
+}
+function validarS4() {
+  let ok=true;
+  ['pavConc','segConc','segConc2','falhasConc'].forEach(n => {
+    const v=getR(n),c=document.getElementById('card-'+n);
+    if(!v){c.classList.add('erro');ok=false;}else c.classList.remove('erro');
+  });
+  return ok;
+}
+
+function renderS5(c) {
+  c.innerHTML = bH(5,'Pedágio e Custo-Benefício','Bloco 5 de 9') +
+    cRadio('pedagJusto','O valor do pedágio é justo considerando o serviço oferecido.',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true) +
+    cRadio('pedagClaro','Consigo perceber claramente o que estou pagando no pedágio.',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true) +
+    cRadio('pedagDesconto','Usuários frequentes deveriam ter condições diferenciadas (descontos, benefícios).',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true);
+}
+function validarS5() {
+  let ok=true;
+  ['pedagJusto','pedagClaro','pedagDesconto'].forEach(n => {
+    const v=getR(n),c=document.getElementById('card-'+n);
+    if(!v){c.classList.add('erro');ok=false;}else c.classList.remove('erro');
+  });
+  return ok;
+}
+
+function renderS6(c) {
+  c.innerHTML = bH(6,'Comunicação','Bloco 6 de 9') +
+    cRadio('contato','Quando você costuma ter contato com informações da EcoRodovias?',[
+      'Em situações de problema','Durante a viagem (informações úteis)','Em campanhas/comunicação','Nunca'],true,
+      'Se nunca, você será direcionado ao próximo bloco.');
+}
+function validarS6() {
+  const v=getR('contato'),c=document.getElementById('card-contato');
+  if(!v){c.classList.add('erro');return false;}c.classList.remove('erro');return true;
+}
+
+function renderS7(c) {
+  c.innerHTML = bH(7,'Comunicação — Canais e Campanhas','Bloco 7 de 9') +
+    cRadio('canalUtil','Qual canal você considera MAIS útil para receber informações da EcoRodovias?',['Waze/Maps','Painéis na rodovia','Rádio','Redes sociais','Site'],true) +
+    cRadio('commSeguro','As mensagens da EcoRodovias contribuem para você se sentir mais seguro durante a viagem?',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true) +
+    cRadio('commProx','A EcoRodovias mantém proximidade e diálogo com os usuários por meio da comunicação?',['Concordo totalmente','Concordo','Neutro','Discordo','Discordo totalmente'],true) +
+    cCheck('momentoInfo','Em qual momento você busca informações da EcoRodovias?',['Antes da viagem','Durante a viagem','Apenas em situações de trânsito ou acidente','Em feriados ou viagens longas','Não costumo acompanhar'],false,'Pode marcar mais de uma.') +
+    cCheck('formatoComm','Qual formato de comunicação chama mais sua atenção?',['Alertas rápidos','Vídeos','Posts com imagens','Painéis eletrônicos','Mensagens de áudio / rádio','Informativos detalhados'],false,'Pode marcar mais de uma.') +
+    cCheck('campanhas','Você foi impactado por alguma campanha da EcoVias nos últimos meses?',['Conversas interrompidas','Maio Amarelo (segurança viária)','Pedágio Eletrônico - #SóQueroPassar','Websérie Jeito Eco de Ser','A Ecovias é paulista, meu!','Não fui impactado por nenhuma das anteriores'],false,'Pode marcar mais de uma.') +
+    cLikert('ef','Como você avalia a efetividade da comunicação da concessionária?<span style="font-size:11px;color:var(--muted)"> (1=Muito ruim | 5=Muito bom)</span>',EF_ITENS,true);
+}
+function validarS7() {
+  let ok=true;
+  ['canalUtil','commSeguro','commProx'].forEach(n => {
+    const v=getR(n),c=document.getElementById('card-'+n);
+    if(!v){c.classList.add('erro');ok=false;}else c.classList.remove('erro');
+  });
+  return ok;
+}
+
+function renderS8(c) {
+  c.innerHTML = bH(8,'Marca','Bloco 8 de 9') +
+    cRadio('sabeAdmin','Você sabe quem administra a rodovia que você mais usa?',['Sim','Não'],true) +
+    cRadio('associaGestao','A quem você associa a gestão da rodovia?',['Governo','Empresa privada','Não sei'],true) +
+    cRadio('marcaInfluencia','A marca da concessionária influencia na sua escolha de rota?',['Sim','Não','Nunca pensei sobre isso'],true);
+}
+function validarS8() {
+  let ok=true;
+  ['sabeAdmin','associaGestao','marcaInfluencia'].forEach(n => {
+    const v=getR(n),c=document.getElementById('card-'+n);
+    if(!v){c.classList.add('erro');ok=false;}else c.classList.remove('erro');
+  });
+  return ok;
+}
+
+function renderS9(c) {
+  c.innerHTML = bH(9,'Expectativas e Insights','Bloco 9 de 9') +
+    `<div class="card" id="card-melhoria">
+      <div class="pergunta">O que MAIS melhoraria sua experiência nas rodovias?<span class="req">*</span></div>
+      <textarea class="textarea-field" id="txt-melhoria" placeholder="Escreva sua resposta aqui..."></textarea>
+      <p class="erro-msg">Por favor, preencha este campo.</p>
+    </div>
+    <div class="card" id="card-frase">
+      <div class="pergunta">Complete a frase: "Uma rodovia ideal precisa acima de tudo..."<span class="req">*</span></div>
+      <textarea class="textarea-field" id="txt-frase" placeholder="Uma rodovia ideal precisa acima de tudo..."></textarea>
+      <p class="erro-msg">Por favor, preencha este campo.</p>
+    </div>
+    <div class="card" id="card-comentarios">
+      <div class="pergunta">Comentários finais</div>
+      <textarea class="textarea-field" id="txt-comentarios" placeholder="Sugestões, críticas ou percepções (opcional)..."></textarea>
+    </div>`;
+}
+function validarS9() {
+  let ok=true;
+  ['melhoria','frase'].forEach(id => {
+    const v=document.getElementById('txt-'+id).value.trim(),c=document.getElementById('card-'+id);
+    if(!v){c.classList.add('erro');ok=false;}else c.classList.remove('erro');
+  });
+  return ok;
+}
+
+// ══════════════════════════════════════
+// NAVEGAÇÃO
+// ══════════════════════════════════════
+const VALIDADORES = [validarS1,validarS2,validarS3,validarS4,validarS5,validarS6,validarS7,validarS8,validarS9];
+
+function avancar() {
+  if (!VALIDADORES[sessaoAtual]()) {
+    document.querySelector('.card.erro')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  salvarEstadoAtual();
+
+  // "Nunca utilizei" → enviar
+  if (sessaoAtual===0 && ESTADO.finalidade==='Nunca utilizei') { enviar(); return; }
+
+  // "Nunca" em contato → pular bloco 7
+  if (sessaoAtual===5 && ESTADO.contato==='Nunca') { sessaoAtual=7; renderSessao(); return; }
+
+  if (sessaoAtual < SESSOES.length-1) { sessaoAtual++; renderSessao(); }
+  else enviar();
+}
+
+function voltar() {
+  salvarEstadoAtual();
+  if (sessaoAtual===7 && ESTADO.contato==='Nunca') { sessaoAtual=5; }
+  else if (sessaoAtual>0) sessaoAtual--;
+  renderSessao();
+}
+
+// ══════════════════════════════════════
+// ENVIO
+// ══════════════════════════════════════
+function enviar() {
+  salvarEstadoAtual();
+  const dados = {
+    idade: ESTADO.idade,
+    genero: ESTADO.genero,
+    generoOutro: ESTADO.generoOutro,
+    escolaridade: ESTADO.escolaridade,
+    renda: ESTADO.renda,
+    estado: ESTADO.estado,
+    cidade: ESTADO.cidade,
+    tipoUsuario: ESTADO.tipoUsuario,
+    tipoUsuarioOutro: ESTADO.tipoUsuarioOutro,
+    finalidade: ESTADO.finalidade,
+    finalidadeOutro: ESTADO.finalidadeOutro,
+    freqUso: ESTADO.freqUso,
+    rodovias: JSON.stringify(ESTADO.rodovias),
+    concessoes: ESTADO.concessoes.join(', '),
+    rankingFatores: ESTADO.rankingFatores.join(' > '),
+    sabeConcessao: ESTADO.sabeConcessao,
+    difPedagio: ESTADO.difPedagio,
+    importancia: JSON.stringify(ESTADO.importancia),
+    desempenho: JSON.stringify(ESTADO.desempenho),
+    pavConc: ESTADO.pavConc,
+    segConc: ESTADO.segConc,
+    segConc2: ESTADO.segConc2,
+    falhasConc: ESTADO.falhasConc,
+    pedagJusto: ESTADO.pedagJusto,
+    pedagClaro: ESTADO.pedagClaro,
+    pedagDesconto: ESTADO.pedagDesconto,
+    contato: ESTADO.contato,
+    canalUtil: ESTADO.canalUtil,
+    commSeguro: ESTADO.commSeguro,
+    commProx: ESTADO.commProx,
+    momentoInfo: ESTADO.momentoInfo.join(', '),
+    formatoComm: ESTADO.formatoComm.join(', '),
+    campanhas: ESTADO.campanhas.join(', '),
+    efetividade: JSON.stringify(ESTADO.efetividade),
+    sabeAdmin: ESTADO.sabeAdmin,
+    associaGestao: ESTADO.associaGestao,
+    marcaInfluencia: ESTADO.marcaInfluencia,
+    melhoria: ESTADO.melhoria,
+    frase: ESTADO.frase,
+    comentarios: ESTADO.comentarios
+  };
+
+  document.getElementById('loading').classList.add('ativo');
+
+  fetch('https://script.google.com/macros/s/AKfycbzubOEuxqURm_115rA_o2Ig2hEpyDP25v32Genln719RToU7kNBRYfpsW22DxTsuNPF/exec', {
+    method: 'POST',
+    body: JSON.stringify(dados)
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(res) {
+    document.getElementById('loading').classList.remove('ativo');
+    if (res.sucesso) {
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('tela-sucesso').style.display = 'block';
+      window.scrollTo({top:0,behavior:'smooth'});
+    } else {
+      alert('Erro ao salvar: ' + (res.erro || 'tente novamente.'));
+    }
+  })
+  .catch(function(err) {
+    document.getElementById('loading').classList.remove('ativo');
+    alert('Erro de conexão. Tente novamente.');
+  });
+}
+
+// ── Ranking por botões ──────────────────────────────────────
+const rankingSelecoes = {};
+
+function selecionarPosicao(slug, fator, posicao) {
+  const fatOcupante = Object.entries(rankingSelecoes).find(([f, p]) => p === posicao && f !== fator);
+  if (fatOcupante) {
+    const [fatAnterior] = fatOcupante;
+    delete rankingSelecoes[fatAnterior];
+    const slugAnt = fatAnterior.replace(/[\s()]/g,'_');
+    document.querySelectorAll(`[id^="rank-btn-${slugAnt}-"]`).forEach(btn => {
+      btn.classList.remove('sel');
+      btn.style.background = 'transparent';
+      btn.style.color = 'var(--muted)';
+      btn.style.borderColor = 'var(--border)';
+    });
+  }
+  rankingSelecoes[fator] = posicao;
+  document.querySelectorAll(`[id^="rank-btn-${slug}-"]`).forEach(btn => {
+    btn.classList.remove('sel');
+    btn.style.background = 'transparent';
+    btn.style.color = 'var(--muted)';
+    btn.style.borderColor = 'var(--border)';
+  });
+  const btn = document.getElementById(`rank-btn-${slug}-${posicao}`);
+  if (btn) {
+    btn.classList.add('sel');
+    btn.style.background = 'var(--azul-claro)';
+    btn.style.color = '#fff';
+    btn.style.borderColor = 'var(--azul-claro)';
+  }
+}
+</script>
 </body>
 </html>
