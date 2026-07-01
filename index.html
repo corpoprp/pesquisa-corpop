@@ -843,22 +843,38 @@ function enviar() {
 
   document.getElementById('loading').classList.add('ativo');
 
-  fetch('https://script.google.com/macros/s/AKfycbzubOEuxqURm_115rA_o2Ig2hEpyDP25v32Genln719RToU7kNBRYfpsW22DxTsuNPF/exec', {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(dados)
-  })
-  .then(function() {
+  // Cria iframe invisível para capturar o redirect do Apps Script
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden-iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  // Cria formulário invisível
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'https://script.google.com/macros/s/AKfycbzubOEuxqURm_115rA_o2Ig2hEpyDP25v32Genln719RToU7kNBRYfpsW22DxTsuNPF/exec';
+  form.target = 'hidden-iframe';
+  form.style.display = 'none';
+
+  // Adiciona dados como campo único JSON
+  const input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'dados';
+  input.value = JSON.stringify(dados);
+  form.appendChild(input);
+  document.body.appendChild(form);
+
+  // Quando o iframe carregar, mostra sucesso
+  iframe.onload = function() {
     document.getElementById('loading').classList.remove('ativo');
     document.getElementById('app').style.display = 'none';
     document.getElementById('tela-sucesso').style.display = 'block';
     window.scrollTo({top:0,behavior:'smooth'});
-  })
-  .catch(function(err) {
-    document.getElementById('loading').classList.remove('ativo');
-    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
-  });
+    document.body.removeChild(form);
+    document.body.removeChild(iframe);
+  };
+
+  form.submit();
 }
 
 // ── Ranking por botões ──────────────────────────────────────
