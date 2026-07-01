@@ -7,15 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --azul:       #0d1f6e;
-    --azul-mid:   #1a2f8a;
-    --azul-claro: #4bb8cc;
-    --azul-soft:  #6dcad9;
-    --bg:         #eaf6f9;
+    --azul:       #1e5a2e;
+    --azul-mid:   #2d6e3e;
+    --azul-claro: #3d9e52;
+    --azul-soft:  #6ab87a;
+    --bg:         #e8f5e9;
     --white:      #ffffff;
-    --border:     #d0e8ee;
-    --text:       #0d1f3c;
-    --muted:      #5a7a8a;
+    --border:     #c8e6c9;
+    --text:       #1b3a22;
+    --muted:      #4a7a55;
     --error:      #dc2626;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +31,7 @@
   .header-card {
     background: var(--white); border-radius: 12px;
     border-top: 8px solid var(--azul-claro);
-    box-shadow: 0 2px 12px rgba(13,31,110,.08); padding: 28px;
+    box-shadow: 0 2px 12px rgba(30,90,46,.08); padding: 28px;
   }
   .logo { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--azul); margin-bottom: 4px; }
   .logo span { color: var(--azul-claro); }
@@ -40,14 +40,14 @@
   .header-card p { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 8px; }
   .req-note { font-size: 12px; color: var(--error); margin-top: 12px; }
 
-  .progress-card { background: var(--white); border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(13,31,110,.06); }
+  .progress-card { background: var(--white); border-radius: 12px; padding: 16px 20px; box-shadow: 0 2px 12px rgba(30,90,46,.06); }
   .progress-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
   .progress-label { font-size: 12px; font-weight: 600; color: var(--azul); }
   .progress-pct { font-size: 12px; color: var(--muted); }
-  .progress-bar-wrap { height: 6px; background: #e0eef2; border-radius: 3px; overflow: hidden; }
+  .progress-bar-wrap { height: 6px; background: #c8e6c9; border-radius: 3px; overflow: hidden; }
   .progress-bar { height: 100%; background: linear-gradient(90deg, var(--azul-claro), var(--azul-soft)); border-radius: 3px; transition: width .4s ease; }
   .steps { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
-  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #d0e8ee; transition: all .3s; }
+  .step-dot { width: 8px; height: 8px; border-radius: 50%; background: #c8e6c9; transition: all .3s; }
   .step-dot.ativo { background: var(--azul-claro); transform: scale(1.3); }
   .step-dot.feito { background: var(--azul); }
 
@@ -67,7 +67,7 @@
 
   .card {
     background: var(--white); border-radius: 12px; padding: 24px;
-    box-shadow: 0 2px 12px rgba(13,31,110,.06);
+    box-shadow: 0 2px 12px rgba(30,90,46,.06);
     border-left: 4px solid transparent; transition: border-color .15s;
   }
   .card:focus-within { border-left-color: var(--azul-claro); }
@@ -84,10 +84,10 @@
     padding: 10px 12px; border: 1px solid var(--border);
     border-radius: 8px; cursor: pointer; transition: all .15s;
   }
-  .opcao:hover { border-color: var(--azul-claro); background: #f0fafc; }
+  .opcao:hover { border-color: var(--azul-claro); background: #f1f8f2; }
   .opcao input[type="radio"], .opcao input[type="checkbox"] {
     appearance: none; width: 18px; height: 18px;
-    border: 2px solid #b0cdd5; border-radius: 50%;
+    border: 2px solid #a5c9a8; border-radius: 50%;
     flex-shrink: 0; cursor: pointer; transition: all .15s;
   }
   .opcao input[type="checkbox"] { border-radius: 5px; }
@@ -100,15 +100,15 @@
     padding: 10px 12px; border: 1px solid var(--border);
     border-radius: 8px; cursor: pointer; transition: all .15s;
   }
-  .outro-wrapper:hover { border-color: var(--azul-claro); background: #f0fafc; }
+  .outro-wrapper:hover { border-color: var(--azul-claro); background: #f1f8f2; }
   .outro-wrapper input[type="radio"] {
     appearance: none; width: 18px; height: 18px;
-    border: 2px solid #b0cdd5; border-radius: 50%;
+    border: 2px solid #a5c9a8; border-radius: 50%;
     flex-shrink: 0; cursor: pointer; transition: all .15s;
   }
   .outro-wrapper input[type="radio"]:checked { border-color: var(--azul-claro); border-width: 5px; }
   .outro-input {
-    flex: 1; border: none; border-bottom: 1px solid #b0cdd5;
+    flex: 1; border: none; border-bottom: 1px solid #a5c9a8;
     outline: none; font-size: 13px; color: var(--text);
     padding: 2px 0; background: transparent; font-family: 'Inter', sans-serif;
   }
@@ -129,11 +129,11 @@
 
   .matriz-wrap { overflow-x: auto; }
   .matriz { width: 100%; border-collapse: collapse; font-size: 12px; }
-  .matriz th { background: #f0fafc; color: var(--azul); font-weight: 600; padding: 8px 6px; text-align: center; border: 1px solid var(--border); white-space: nowrap; font-size: 11px; }
+  .matriz th { background: #f1f8f2; color: var(--azul); font-weight: 600; padding: 8px 6px; text-align: center; border: 1px solid var(--border); white-space: nowrap; font-size: 11px; }
   .matriz th:first-child { text-align: left; min-width: 160px; }
   .matriz td { padding: 8px 6px; border: 1px solid var(--border); text-align: center; vertical-align: middle; }
   .matriz td:first-child { text-align: left; font-size: 12px; color: var(--text); padding-left: 10px; }
-  .matriz tr:nth-child(even) td { background: #f9fdfe; }
+  .matriz tr:nth-child(even) td { background: #f6fbf6; }
   .matriz input[type="radio"] { appearance: none; width: 16px; height: 16px; border: 2px solid #b0cdd5; border-radius: 50%; cursor: pointer; transition: all .15s; }
   .matriz input[type="radio"]:checked { border-color: var(--azul-claro); border-width: 5px; }
 
@@ -179,17 +179,17 @@
   .btn-primary:hover { background: #3aa8bc; }
   .btn-primary:disabled { background: #9ed8e4; cursor: not-allowed; }
   .btn-secondary { background: transparent; color: var(--azul-claro); border: 1px solid var(--azul-claro); }
-  .btn-secondary:hover { background: #f0fafc; }
+  .btn-secondary:hover { background: #f1f8f2; }
   .btn-ghost { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 8px 0; font-family: 'Inter', sans-serif; }
 
-  .sucesso { background: var(--white); border-radius: 12px; padding: 60px 32px; text-align: center; box-shadow: 0 2px 12px rgba(13,31,110,.08); }
+  .sucesso { background: var(--white); border-radius: 12px; padding: 60px 32px; text-align: center; box-shadow: 0 2px 12px rgba(30,90,46,.08); }
   .sucesso .icon { font-size: 56px; margin-bottom: 20px; }
   .sucesso h2 { font-size: 22px; font-weight: 600; color: var(--azul); margin-bottom: 12px; }
   .sucesso p { font-size: 13px; color: var(--muted); line-height: 1.7; }
 
-  .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,.85); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(232,245,233,.9); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
   .loading-overlay.ativo { display: flex; }
-  .spinner { width: 40px; height: 40px; border: 3px solid #d0e8ee; border-top-color: var(--azul-claro); border-radius: 50%; animation: spin .8s linear infinite; }
+  .spinner { width: 40px; height: 40px; border: 3px solid #c8e6c9; border-top-color: var(--azul-claro); border-radius: 50%; animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
 </head>
@@ -197,13 +197,23 @@
 
 <div class="loading-overlay" id="loading">
   <div class="spinner"></div>
-  <span style="font-size:13px;color:var(--azul-claro)">Enviando respostas...</span>
+  <span style="font-size:13px;color:var(--azul)">Enviando respostas...</span>
 </div>
 
 <div class="wrapper" id="app">
   <div class="header-card">
-    <div class="logo">co<span>RP</span>op</div>
-    <div class="logo-sub">Comunicação</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+      <div>
+        <div class="logo">co<span>RP</span>op</div>
+        <div class="logo-sub">Comunicação</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;background:#f1f8f2;border:1px solid #c8e6c9;border-radius:10px;padding:6px 14px;">
+        <span style="font-size:10px;color:#4a7a55;letter-spacing:1px;text-transform:uppercase;font-weight:600">Pesquisa de:</span>
+        <div style="width:1px;height:18px;background:#c8e6c9"></div>
+        <span style="font-family:'Inter',sans-serif;font-size:15px;font-weight:800;color:#3d9e52;letter-spacing:-0.5px">eco</span><span style="font-family:'Inter',sans-serif;font-size:15px;font-weight:800;color:#1e5a2e;letter-spacing:-0.5px">rodovias</span>
+        <span style="font-size:16px">🌿</span>
+      </div>
+    </div>
     <h1>Pesquisa sobre Experiência em Rodovias</h1>
     <p>Somos a coRPop, uma agência experimental de Relações Públicas desenvolvendo nosso Projeto de Conclusão de Curso. Esta pesquisa busca entender hábitos, percepções e expectativas de quem utiliza rodovias.</p>
     <p>O questionário é anônimo e leva cerca de 8 minutos. Sua participação é muito importante!</p>
@@ -835,22 +845,19 @@ function enviar() {
 
   fetch('https://script.google.com/macros/s/AKfycbzubOEuxqURm_115rA_o2Ig2hEpyDP25v32Genln719RToU7kNBRYfpsW22DxTsuNPF/exec', {
     method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(dados)
   })
-  .then(function(res) { return res.json(); })
-  .then(function(res) {
+  .then(function() {
     document.getElementById('loading').classList.remove('ativo');
-    if (res.sucesso) {
-      document.getElementById('app').style.display = 'none';
-      document.getElementById('tela-sucesso').style.display = 'block';
-      window.scrollTo({top:0,behavior:'smooth'});
-    } else {
-      alert('Erro ao salvar: ' + (res.erro || 'tente novamente.'));
-    }
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('tela-sucesso').style.display = 'block';
+    window.scrollTo({top:0,behavior:'smooth'});
   })
   .catch(function(err) {
     document.getElementById('loading').classList.remove('ativo');
-    alert('Erro de conexão. Tente novamente.');
+    alert('Erro ao enviar. Verifique sua conexão e tente novamente.');
   });
 }
 
